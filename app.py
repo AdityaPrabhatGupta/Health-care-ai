@@ -4,7 +4,6 @@ load_dotenv()
 
 from flask import Flask, request, jsonify
 import tf_keras
-from tf_keras import models, layers
 import numpy as np
 import pandas as pd
 from flask_cors import CORS
