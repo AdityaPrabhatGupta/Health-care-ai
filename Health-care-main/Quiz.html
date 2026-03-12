@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Quiz – Health Monitor</title>
+  <link rel="stylesheet" href="App.css">
+  <style>
+    .quiz-hero {
+      background: linear-gradient(135deg,#e0fff5 0%,#f0f4f8 50%,#ede9fe 100%);
+      padding:60px 32px 48px; text-align:center; position:relative; overflow:hidden;
+    }
+    .quiz-hero::before {
+      content:''; position:absolute; top:-80px; right:-80px;
+      width:300px; height:300px;
+      background:radial-gradient(circle,rgba(108,99,255,0.1),transparent 70%);
+      border-radius:50%;
+    }
+    .quiz-hero h1 { font-family:'Nunito',sans-serif; font-weight:900; font-size:clamp(28px,4vw,44px); color:#1a1f36; margin-bottom:10px; }
+    .quiz-hero p  { font-size:16px; color:#64748b; max-width:480px; margin:0 auto; }
+
+    /* ── QUIZ WRAP ── */
+    .quiz-wrap {
+      max-width:680px; margin:0 auto; padding:40px 24px 80px;
+    }
+
+    /* ── PROGRESS ── */
+    .quiz-progress {
+      display:flex; align-items:center; gap:12px; margin-bottom:28px;
+    }
+    .q-counter {
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:14px;
+      color:#64748b; white-space:nowrap;
+    }
+    .q-track {
+      flex:1; height:8px; background:#e2e8f0; border-radius:50px; overflow:hidden;
+    }
+    .q-fill {
+      height:100%; background:linear-gradient(90deg,#00c98d,#6c63ff);
+      border-radius:50px; transition:width 0.5s ease;
+    }
+    .q-score-badge {
+      background:#e0fff5; border:1.5px solid #00c98d;
+      color:#00a374; font-family:'Nunito',sans-serif;
+      font-weight:800; font-size:13px;
+      padding:4px 14px; border-radius:50px; white-space:nowrap;
+    }
+
+    /* ── QUESTION CARD ── */
+    .question-card {
+      background:#fff; border-radius:24px;
+      border:1.5px solid #e2e8f0;
+      padding:36px 32px;
+      box-shadow:0 4px 24px rgba(0,0,0,0.05);
+      animation: qIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes qIn {
+      from { opacity:0; transform:translateY(20px) scale(0.98); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    .q-category {
+      font-size:12px; font-weight:700; font-family:'Nunito',sans-serif;
+      text-transform:uppercase; letter-spacing:0.5px;
+      color:var(--primary); margin-bottom:14px;
+      display:flex; align-items:center; gap:6px;
+    }
+
+    .q-text {
+      font-family:'Nunito',sans-serif; font-weight:800;
+      font-size:clamp(17px,2.5vw,22px); color:#1a1f36;
+      line-height:1.4; margin-bottom:28px;
+    }
+
+    .options-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:12px;
+    }
+
+    .option-btn {
+      padding:14px 16px; border-radius:14px;
+      border:2px solid #e2e8f0; background:#fafafa;
+      font-family:'Nunito',sans-serif; font-weight:700; font-size:14px;
+      color:#1a1f36; cursor:pointer; text-align:left;
+      transition:all 0.2s; line-height:1.4;
+      display:flex; align-items:center; gap:10px;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color:var(--primary); background:var(--primary-light); color:var(--primary-dark);
+      transform:translateY(-2px);
+    }
+
+    .option-btn.correct {
+      border-color:#00c98d; background:#e0fff5; color:#00a374;
+      animation: correctPop 0.4s ease both;
+    }
+
+    .option-btn.wrong {
+      border-color:#ef4444; background:#fee2e2; color:#dc2626;
+      animation: shake 0.4s ease both;
+    }
+
+    .option-btn.reveal {
+      border-color:#00c98d; background:#e0fff5; color:#00a374;
+    }
+
+    @keyframes correctPop {
+      0%   { transform:scale(1); }
+      50%  { transform:scale(1.04); }
+      100% { transform:scale(1); }
+    }
+
+    @keyframes shake {
+      0%,100% { transform:translateX(0); }
+      25%      { transform:translateX(-6px); }
+      75%      { transform:translateX(6px); }
+    }
+
+    .option-icon { font-size:18px; flex-shrink:0; }
+
+    /* ── EXPLANATION ── */
+    .explanation {
+      margin-top:20px; padding:16px 18px;
+      background:#f8fafc; border-radius:12px;
+      border-left:4px solid var(--primary);
+      font-size:14px; color:#475569; line-height:1.6;
+      display:none; animation: slideUp 0.3s ease both;
+    }
+
+    .explanation.show { display:block; }
+    .explanation strong { color:#1a1f36; }
+
+    /* ── NEXT BTN ── */
+    .next-btn {
+      width:100%; margin-top:20px; padding:14px;
+      border:none; border-radius:14px;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:16px;
+      background:linear-gradient(135deg,#00c98d,#00a374); color:#fff;
+      cursor:pointer; transition:all 0.25s;
+      box-shadow:0 6px 20px rgba(0,201,141,0.3);
+      display:none;
+    }
+
+    .next-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(0,201,141,0.4); }
+    .next-btn.show  { display:block; animation: slideUp 0.3s ease both; }
+
+    /* ── RESULTS ── */
+    .results-card {
+      background:#fff; border-radius:24px;
+      border:1.5px solid #e2e8f0;
+      padding:48px 32px; text-align:center;
+      box-shadow:0 4px 24px rgba(0,0,0,0.05);
+      animation: qIn 0.5s ease both;
+      display:none;
+    }
+
+    .result-emoji { font-size:72px; display:block; margin-bottom:16px; animation:floatUp 2s ease-in-out infinite; }
+    @keyframes floatUp { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+    .result-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:30px; color:#1a1f36; margin-bottom:8px; }
+    .result-sub   { font-size:16px; color:#64748b; margin-bottom:28px; }
+
+    .score-circle {
+      width:120px; height:120px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#00c98d,#6c63ff);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      margin:0 auto 28px;
+      box-shadow:0 8px 32px rgba(0,201,141,0.3);
+    }
+
+    .score-num { font-family:'Nunito',sans-serif; font-weight:900; font-size:32px; color:#fff; }
+    .score-den { font-size:13px; color:rgba(255,255,255,0.8); font-weight:600; }
+
+    .result-breakdown {
+      display:flex; justify-content:center; gap:24px; flex-wrap:wrap;
+      margin-bottom:28px;
+    }
+
+    .rb-item { text-align:center; }
+    .rb-val { font-family:'Nunito',sans-serif; font-weight:900; font-size:24px; }
+    .rb-val.green  { color:#00a374; }
+    .rb-val.red    { color:#ef4444; }
+    .rb-lbl { font-size:13px; color:#94a3b8; font-weight:600; margin-top:2px; }
+
+    .restart-btn {
+      padding:14px 40px; border:none; border-radius:50px;
+      background:linear-gradient(135deg,#00c98d,#00a374); color:#fff;
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:16px;
+      cursor:pointer; transition:all 0.25s;
+      box-shadow:0 6px 20px rgba(0,201,141,0.3);
+    }
+
+    .restart-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(0,201,141,0.4); }
+
+    /* ── CONFETTI ── */
+    .particle { position:fixed; width:8px; height:8px; border-radius:2px; pointer-events:none; z-index:9999; animation:pfly 1.3s ease-out forwards; }
+    @keyframes pfly { 0%{opacity:1;transform:translate(0,0) rotate(0deg)} 100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(540deg) scale(0.2)} }
+
+    @keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+    @media(max-width:480px) {
+      .options-grid { grid-template-columns:1fr; }
+      .question-card { padding:24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="Home.html" class="nav-brand">💚 HealthMonitor</a>
+  <ul>
+    <li><a href="Home.html">Home</a></li>
+    <li><a href="Feature.html">Features</a></li>
+    <li><a href="Yoga.html">Yoga</a></li>
+    <li><a href="Quiz.html" class="active">Health Quiz</a></li>
+    <li><a href="Contact.html">Contact</a></li>
+    <li><a href="Reward.html">Rewards</a></li>
+    <li><a href="About.html">About</a></li>
+  </ul>
+  <div id="Login1"><div id="Login"><a href="Login.html">Login</a></div></div>
+</nav>
+
+<div class="quiz-hero">
+  <div style="font-size:52px;margin-bottom:12px">🧠</div>
+  <h1>Health Knowledge Quiz</h1>
+  <p>Test your health IQ! 10 fun questions across nutrition, fitness, and wellness.</p>
+</div>
+
+<div class="quiz-wrap">
+  <!-- Progress -->
+  <div class="quiz-progress" id="progressBar">
+    <span class="q-counter" id="qCounter">Q 1 / 10</span>
+    <div class="q-track"><div class="q-fill" id="qFill" style="width:0%"></div></div>
+    <span class="q-score-badge" id="scoreBadge">Score: 0</span>
+  </div>
+
+  <!-- Question card -->
+  <div class="question-card" id="questionCard">
+    <div class="q-category" id="qCat"></div>
+    <div class="q-text" id="qText"></div>
+    <div class="options-grid" id="optionsGrid"></div>
+    <div class="explanation" id="explanation"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+  </div>
+
+  <!-- Results -->
+  <div class="results-card" id="resultsCard">
+    <span class="result-emoji" id="resultEmoji"></span>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-sub" id="resultSub"></div>
+    <div class="score-circle">
+      <div class="score-num" id="finalScore"></div>
+      <div class="score-den" id="finalDen"></div>
+    </div>
+    <div class="result-breakdown">
+      <div class="rb-item"><div class="rb-val green" id="correctCount"></div><div class="rb-lbl">Correct ✅</div></div>
+      <div class="rb-item"><div class="rb-val red"   id="wrongCount"></div><div class="rb-lbl">Wrong ❌</div></div>
+      <div class="rb-item"><div class="rb-val" style="color:#6c63ff" id="pctScore"></div><div class="rb-lbl">Accuracy</div></div>
+    </div>
+    <button class="restart-btn" onclick="startQuiz()">🔄 Play Again</button>
+  </div>
+</div>
+
+<footer><p>© 2025 Health Monitor. All rights reserved.</p></footer>
+
+<script>
+const allQuestions = [
+  { cat:"💧 Hydration", text:"How many glasses of water should an average adult drink per day?", options:["4 glasses","6 glasses","8 glasses","12 glasses"], ans:2, explanation:"The general recommendation is 8 glasses (about 2 litres) of water daily, though needs vary with activity level and climate." },
+  { cat:"🥗 Nutrition", text:"Which vitamin is produced when skin is exposed to sunlight?", options:["Vitamin A","Vitamin B12","Vitamin C","Vitamin D"], ans:3, explanation:"Vitamin D is synthesized in the skin when exposed to UVB rays from sunlight. It's essential for bone health and immunity." },
+  { cat:"🏃 Fitness", text:"How many minutes of moderate exercise does WHO recommend per week for adults?", options:["75 minutes","150 minutes","200 minutes","300 minutes"], ans:1, explanation:"The WHO recommends at least 150 minutes of moderate-intensity aerobic activity per week for adults aged 18–64." },
+  { cat:"😴 Sleep", text:"How many hours of sleep do adults typically need each night?", options:["4–5 hours","5–6 hours","7–9 hours","10–12 hours"], ans:2, explanation:"Most adults need 7–9 hours of quality sleep per night. Chronic sleep deprivation is linked to obesity, diabetes, and heart disease." },
+  { cat:"❤️ Heart Health", text:"What is considered a normal resting heart rate for adults?", options:["40–50 bpm","60–100 bpm","100–120 bpm","120–140 bpm"], ans:1, explanation:"A normal resting heart rate for adults is 60–100 beats per minute. Athletes may have lower rates (40–60 bpm)." },
+  { cat:"🥗 Nutrition", text:"Which nutrient is the body's primary source of energy?", options:["Protein","Fat","Carbohydrates","Vitamins"], ans:2, explanation:"Carbohydrates are the body's preferred and primary energy source. They break down into glucose, which fuels cells, brain, and muscles." },
+  { cat:"🧘 Wellness", text:"Which practice is known to lower cortisol (stress hormone) levels?", options:["Skipping meals","Deep breathing / Meditation","Watching TV","Drinking coffee"], ans:1, explanation:"Meditation and deep breathing activate the parasympathetic nervous system, which reduces cortisol and lowers blood pressure." },
+  { cat:"💪 Fitness", text:"Which exercise is best for strengthening the core?", options:["Bicep curls","Leg press","Plank","Bench press"], ans:2, explanation:"The plank engages the entire core including transverse abdominis, obliques, and lower back — making it one of the best core exercises." },
+  { cat:"🥗 Nutrition", text:"Which food is the richest natural source of Omega-3 fatty acids?", options:["Chicken","Salmon / Fatty fish","White rice","Apple"], ans:1, explanation:"Fatty fish like salmon, mackerel, and sardines are the richest sources of EPA and DHA omega-3s, which support heart and brain health." },
+  { cat:"🩺 General Health", text:"What does BMI stand for?", options:["Body Muscle Index","Basic Metabolism Indicator","Body Mass Index","Blood Measure Indicator"], ans:2, explanation:"BMI stands for Body Mass Index. It's calculated as weight (kg) divided by height squared (m²) and is used to screen for weight-related health risks." },
+];
+
+let questions=[], current=0, score=0, answered=false;
+
+function shuffle(arr) { return [...arr].sort(() => Math.random()-0.5); }
+
+function startQuiz() {
+  questions = shuffle(allQuestions).slice(0,10);
+  current = 0; score = 0; answered = false;
+  document.getElementById('resultsCard').style.display = 'none';
+  document.getElementById('questionCard').style.display = 'block';
+  document.getElementById('progressBar').style.display = 'flex';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[current];
+  document.getElementById('qCounter').textContent = `Q ${current+1} / ${questions.length}`;
+  document.getElementById('qFill').style.width = ((current/questions.length)*100) + '%';
+  document.getElementById('scoreBadge').textContent = `Score: ${score}`;
+  document.getElementById('qCat').innerHTML = q.cat;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('explanation').className = 'explanation';
+  document.getElementById('explanation').innerHTML = '';
+  document.getElementById('nextBtn').className = 'next-btn';
+
+  const icons = ['🅐','🅑','🅒','🅓'];
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-icon">${icons[i]}</span>${opt}`;
+    btn.onclick = () => selectAnswer(i, btn);
+    grid.appendChild(btn);
+  });
+
+  // Re-trigger animation
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'qIn 0.4s cubic-bezier(0.16,1,0.3,1) both';
+}
+
+function selectAnswer(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const allBtns = document.querySelectorAll('.option-btn');
+
+  allBtns.forEach(b => b.disabled = true);
+  allBtns[q.ans].classList.add('correct');
+
+  if (idx === q.ans) {
+    score++;
+    burst();
+  } else {
+    btn.classList.add('wrong');
+    allBtns[q.ans].classList.add('reveal');
+  }
+
+  const expEl = document.getElementById('explanation');
+  expEl.innerHTML = `<strong>💡 Did you know?</strong> ${q.explanation}`;
+  expEl.classList.add('show');
+  document.getElementById('nextBtn').classList.add('show');
+  document.getElementById('scoreBadge').textContent = `Score: ${score}`;
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) { showResults(); return; }
+  renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('questionCard').style.display = 'none';
+  document.getElementById('progressBar').style.display = 'none';
+  const pct = Math.round((score/questions.length)*100);
+
+  let emoji, title, sub;
+  if (pct >= 90)      { emoji='🏆'; title='Health Expert!';       sub='Outstanding! You really know your health.'; }
+  else if (pct >= 70) { emoji='🌟'; title='Health Enthusiast!';   sub='Great job! Just a few things to brush up on.'; }
+  else if (pct >= 50) { emoji='👍'; title='Getting There!';       sub='Good effort! Keep learning about health.'; }
+  else                { emoji='📚'; title='Room to Grow!';        sub='Don\'t worry — every quiz makes you smarter!'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent  = title;
+  document.getElementById('resultSub').textContent    = sub;
+  document.getElementById('finalScore').textContent   = score;
+  document.getElementById('finalDen').textContent     = `/ ${questions.length}`;
+  document.getElementById('correctCount').textContent = score;
+  document.getElementById('wrongCount').textContent   = questions.length - score;
+  document.getElementById('pctScore').textContent     = pct + '%';
+
+  document.getElementById('resultsCard').style.display = 'block';
+  if (pct >= 70) bigBurst();
+}
+
+function burst() {
+  const colors = ['#00c98d','#6c63ff','#f5c842','#f59e0b','#ec4899','#3b82f6'];
+  for (let i=0;i<16;i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const x = window.innerWidth/2, y = window.innerHeight/2;
+    const angle = (i/16)*Math.PI*2;
+    const d = 60 + Math.random()*80;
+    p.style.cssText = `left:${x}px;top:${y}px;background:${colors[i%colors.length]};--dx:${Math.cos(angle)*d}px;--dy:${Math.sin(angle)*d-20}px`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1500);
+  }
+}
+
+function bigBurst() {
+  const colors = ['#00c98d','#6c63ff','#f5c842','#f59e0b','#ec4899','#3b82f6'];
+  for (let i=0;i<50;i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const x = Math.random()*window.innerWidth;
+      const y = Math.random()*window.innerHeight*0.5;
+      const angle = Math.random()*Math.PI*2;
+      const d = 80 + Math.random()*150;
+      p.style.cssText = `left:${x}px;top:${y}px;background:${colors[Math.floor(Math.random()*colors.length)]};--dx:${Math.cos(angle)*d}px;--dy:${Math.sin(angle)*d}px`;
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(),1500);
+    }, i*40);
+  }
+}
+
+startQuiz();
+</script>
+<script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoga & Exercises – Health Monitor</title>
+  <link rel="stylesheet" href="App.css">
+  <style>
+    .yoga-hero {
+      background: linear-gradient(135deg, #e0fff5 0%, #f0fdf4 40%, #fef3c7 100%);
+      padding: 60px 32px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .yoga-hero::before {
+      content:''; position:absolute; top:-60px; right:-60px;
+      width:260px; height:260px;
+      background:radial-gradient(circle,rgba(0,201,141,0.1),transparent 70%);
+      border-radius:50%;
+    }
+    .yoga-hero h1 { font-family:'Nunito',sans-serif; font-weight:900; font-size:clamp(28px,4vw,44px); color:#1a1f36; margin-bottom:10px; }
+    .yoga-hero p  { font-size:16px; color:#64748b; max-width:500px; margin:0 auto; }
+
+    .filter-bar {
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
+      padding:28px 24px 0; max-width:960px; margin:0 auto;
+    }
+    .filter-btn {
+      padding:8px 20px; border-radius:50px;
+      font-family:'Nunito',sans-serif; font-weight:700; font-size:14px;
+      border:2px solid #e2e8f0; background:#fff; color:#64748b;
+      cursor:pointer; transition:all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background:var(--primary); border-color:var(--primary); color:#fff;
+    }
+
+    .exercises-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+      gap:20px;
+      max-width:960px; margin:28px auto 0; padding:0 24px;
+    }
+
+    .exercise-card {
+      background:#fff; border-radius:20px;
+      border:1.5px solid #e2e8f0;
+      overflow:hidden;
+      transition:all 0.3s; cursor:pointer;
+      animation: slideUp 0.4s ease both;
+    }
+    .exercise-card:hover { transform:translateY(-6px); box-shadow:0 16px 40px rgba(0,0,0,0.09); border-color:var(--primary); }
+
+    .exercise-banner {
+      height:110px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:52px;
+      background:var(--eb, linear-gradient(135deg,#e0fff5,#f0fdf4));
+      position:relative;
+    }
+
+    .difficulty-badge {
+      position:absolute; top:10px; right:12px;
+      font-size:11px; font-weight:700; font-family:'Nunito',sans-serif;
+      padding:3px 10px; border-radius:50px;
+      background:var(--db,#e0fff5); color:var(--dc,#00a374);
+    }
+
+    .exercise-body { padding:18px 20px; }
+    .exercise-name { font-family:'Nunito',sans-serif; font-weight:800; font-size:17px; color:#1a1f36; margin-bottom:6px; }
+    .exercise-desc { font-size:13px; color:#64748b; line-height:1.55; margin-bottom:14px; }
+
+    .exercise-meta {
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .meta-chip {
+      font-size:12px; font-weight:600; padding:4px 10px;
+      border-radius:50px; background:#f1f5f9; color:#475569;
+      display:flex; align-items:center; gap:4px;
+    }
+
+    .expand-btn {
+      width:100%; margin-top:14px; padding:10px;
+      border:none; border-radius:10px;
+      background:var(--primary-light); color:var(--primary-dark);
+      font-family:'Nunito',sans-serif; font-weight:700; font-size:14px;
+      cursor:pointer; transition:all 0.2s;
+    }
+    .expand-btn:hover { background:var(--primary); color:#fff; }
+
+    .steps-panel {
+      display:none; padding:14px 20px 18px;
+      border-top:1px solid #f1f5f9;
+      animation: slideUp 0.3s ease both;
+    }
+    .steps-panel.open { display:block; }
+    .step-item {
+      display:flex; gap:10px; margin-bottom:10px; align-items:flex-start;
+    }
+    .step-num {
+      min-width:24px; height:24px; border-radius:50%;
+      background:var(--primary); color:#fff;
+      font-size:12px; font-weight:700; font-family:'Nunito',sans-serif;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .step-txt { font-size:13px; color:#475569; line-height:1.5; padding-top:3px; }
+
+    @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="Home.html" class="nav-brand">💚 HealthMonitor</a>
+  <ul>
+    <li><a href="Home.html">Home</a></li>
+    <li><a href="Feature.html">Features</a></li>
+    <li><a href="Yoga.html" class="active">Yoga</a></li>
+    <li><a href="Quiz.html">Health Quiz</a></li>
+    <li><a href="Contact.html">Contact</a></li>
+    <li><a href="Reward.html">Rewards</a></li>
+    <li><a href="About.html">About</a></li>
+  </ul>
+  <div id="Login1"><div id="Login"><a href="Login.html">Login</a></div></div>
+</nav>
+
+<div class="yoga-hero">
+  <div style="font-size:52px;margin-bottom:12px">🧘</div>
+  <h1>Yoga & Exercises</h1>
+  <p>Simple daily workouts to keep your body and mind healthy. Tap any card for step-by-step guide.</p>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterEx('all',this)">All</button>
+  <button class="filter-btn" onclick="filterEx('yoga',this)">🧘 Yoga</button>
+  <button class="filter-btn" onclick="filterEx('cardio',this)">🏃 Cardio</button>
+  <button class="filter-btn" onclick="filterEx('strength',this)">💪 Strength</button>
+  <button class="filter-btn" onclick="filterEx('breathing',this)">🌬️ Breathing</button>
+</div>
+
+<div class="exercises-grid" id="exGrid"></div>
+
+<div style="padding-bottom:60px"></div>
+
+<footer>
+  <p>© 2025 Health Monitor. All rights reserved.</p>
+</footer>
+
+<script>
+const exercises = [
+  {
+    name:"Surya Namaskar", emoji:"☀️", cat:"yoga",
+    desc:"Full body warm-up sequence that energizes every muscle.",
+    time:"15 min", calories:"150 kcal", level:"Beginner",
+    eb:"linear-gradient(135deg,#fef9ee,#fef3c7)", db:"#fef3c7", dc:"#d97706",
+    steps:["Stand straight, feet together, palms joined (Pranamasana).","Raise arms overhead, slight backbend (Hasta Uttanasana).","Bend forward, touch the floor (Hasta Padasana).","Step right leg back, lunge (Ashwa Sanchalanasana).","Bring both legs back, plank position.","Lower body to floor (Ashtanga Namaskara).","Push up, chest forward (Bhujangasana / Cobra).","Raise hips up, form inverted V (Adho Mukha).", "Step right foot forward to lunge again.","Bring feet together, forward bend.","Rise up, arms overhead.","Return to prayer position. Repeat other side."]
+  },
+  {
+    name:"Anulom Vilom", emoji:"🌬️", cat:"breathing",
+    desc:"Alternate nostril breathing — reduces stress and anxiety.",
+    time:"10 min", calories:"20 kcal", level:"Beginner",
+    eb:"linear-gradient(135deg,#ede9fe,#f5f3ff)", db:"#ede9fe", dc:"#7c3aed",
+    steps:["Sit comfortably in Padmasana or Sukhasana.","Close right nostril with thumb. Inhale slowly through left nostril (4 counts).","Close both nostrils. Hold breath (4 counts).","Release thumb, close left nostril with ring finger. Exhale through right nostril (4 counts).","Inhale through right nostril (4 counts).","Hold breath (4 counts).","Exhale through left nostril. This completes 1 cycle.","Repeat for 10–15 cycles."]
+  },
+  {
+    name:"Jumping Jacks", emoji:"⭐", cat:"cardio",
+    desc:"Classic full-body cardio exercise to get your heart pumping.",
+    time:"5 min", calories:"50 kcal", level:"Beginner",
+    eb:"linear-gradient(135deg,#e0fff5,#dcfce7)", db:"#e0fff5", dc:"#00a374",
+    steps:["Stand upright, feet together, arms at sides.","Jump and simultaneously spread legs shoulder-width apart.","As you jump, raise arms above your head.","Jump back to starting position.","Repeat continuously for 30–60 seconds.","Rest 15 seconds, then repeat 3 sets."]
+  },
+  {
+    name:"Bhujangasana", emoji:"🐍", cat:"yoga",
+    desc:"Cobra pose — strengthens spine and opens chest.",
+    time:"10 min", calories:"40 kcal", level:"Beginner",
+    eb:"linear-gradient(135deg,#fce7f3,#fdf2f8)", db:"#fce7f3", dc:"#be185d",
+    steps:["Lie face down, legs together, palms under shoulders.","Press palms into floor. Inhale and slowly lift chest.","Straighten arms as much as comfortable — don't strain.","Look slightly upward, shoulders relaxed away from ears.","Hold for 15–30 seconds. Breathe normally.","Exhale and slowly lower back to floor.","Repeat 3–5 times."]
+  },
+  {
+    name:"Push-Ups", emoji:"💪", cat:"strength",
+    desc:"Build upper body strength — chest, shoulders, and triceps.",
+    time:"10 min", calories:"80 kcal", level:"Intermediate",
+    eb:"linear-gradient(135deg,#dbeafe,#eff6ff)", db:"#dbeafe", dc:"#1d4ed8",
+    steps:["Get into plank position, hands slightly wider than shoulders.","Keep body in a straight line from head to heels.","Lower chest toward floor by bending elbows.","Go down until chest nearly touches the floor.","Push back up explosively to starting position.","Keep core tight throughout — don't let hips sag.","Do 3 sets of 10–15 reps with 30s rest between sets."]
+  },
+  {
+    name:"Kapalbhati", emoji:"🔥", cat:"breathing",
+    desc:"Forceful exhalation pranayama — detoxifies and boosts energy.",
+    time:"10 min", calories:"30 kcal", level:"Intermediate",
+    eb:"linear-gradient(135deg,#fff7ed,#ffedd5)", db:"#fff7ed", dc:"#c2410c",
+    steps:["Sit in Padmasana or on a chair with straight spine.","Take a deep breath in.","Exhale forcefully through nose — pull navel sharply inward.","Inhalation happens naturally and passively.","Start with 1 stroke per second, gradually increase.","Do 20–30 strokes for 1 round.","Rest 30 seconds. Repeat 3–5 rounds.","Avoid if pregnant or have high blood pressure."]
+  },
+  {
+    name:"Squats", emoji:"🦵", cat:"strength",
+    desc:"King of lower body exercises — builds legs and glutes.",
+    time:"10 min", calories:"100 kcal", level:"Beginner",
+    eb:"linear-gradient(135deg,#f0fdf4,#dcfce7)", db:"#dcfce7", dc:"#15803d",
+    steps:["Stand with feet shoulder-width apart, toes slightly out.","Hold arms straight in front for balance.","Inhale and push hips back, bending knees.","Lower until thighs are parallel to floor (or as low as comfortable).","Keep chest up, knees tracking over toes.","Exhale and push through heels to stand back up.","Do 3 sets of 15–20 reps."]
+  },
+  {
+    name:"Shavasana", emoji:"🌙", cat:"yoga",
+    desc:"Corpse pose — deep relaxation and stress relief.",
+    time:"10 min", calories:"10 kcal", level:"Beginner",
+    eb:"linear-gradient(135deg,#f0f9ff,#e0f2fe)", db:"#e0f2fe", dc:"#0369a1",
+    steps:["Lie flat on your back, legs slightly apart.","Arms by your sides, palms facing up.","Close your eyes. Take a few deep breaths.","Consciously relax each body part from toes to head.","Let your breath become natural — don't control it.","Stay completely still and aware for 10 minutes.","To come out: wiggle fingers, roll to one side, sit up slowly."]
+  },
+];
+
+let current = 'all';
+
+function filterEx(cat, btn) {
+  current = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards();
+}
+
+function renderCards() {
+  const grid = document.getElementById('exGrid');
+  grid.innerHTML = '';
+  const filtered = current === 'all' ? exercises : exercises.filter(e => e.cat === current);
+  filtered.forEach((ex, i) => {
+    const levelColor = ex.level === 'Beginner' ? '#00a374' : ex.level === 'Intermediate' ? '#d97706' : '#dc2626';
+    const card = document.createElement('div');
+    card.className = 'exercise-card';
+    card.style.animationDelay = (i * 0.07) + 's';
+    card.innerHTML = `
+      <div class="exercise-banner" style="background:${ex.eb}">
+        <span>${ex.emoji}</span>
+        <div class="difficulty-badge" style="background:${ex.db};color:${levelColor}">${ex.level}</div>
+      </div>
+      <div class="exercise-body">
+        <div class="exercise-name">${ex.name}</div>
+        <div class="exercise-desc">${ex.desc}</div>
+        <div class="exercise-meta">
+          <span class="meta-chip">⏱️ ${ex.time}</span>
+          <span class="meta-chip">🔥 ${ex.calories}</span>
+          <span class="meta-chip">📂 ${ex.cat}</span>
+        </div>
+        <button class="expand-btn" onclick="toggleSteps(this)">📋 View Steps</button>
+      </div>
+      <div class="steps-panel">
+        ${ex.steps.map((s,i) => `<div class="step-item"><div class="step-num">${i+1}</div><div class="step-txt">${s}</div></div>`).join('')}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function toggleSteps(btn) {
+  const panel = btn.closest('.exercise-card').querySelector('.steps-panel');
+  const open = panel.classList.toggle('open');
+  btn.textContent = open ? '🔼 Hide Steps' : '📋 View Steps';
+}
+
+renderCards();
+</script>
+<script src="auth.js"></script>
+</body>
+</html>

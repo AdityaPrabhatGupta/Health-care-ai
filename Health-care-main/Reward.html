@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rewards – Health Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="App.css">
+  <style>
+    .rewards-hero-banner { position:relative; background:linear-gradient(135deg,#e0fff5 0%,#f0fdf4 40%,#fef9ee 100%); border:1.5px solid rgba(0,201,141,0.2); border-radius:24px; padding:48px 40px; text-align:center; margin-bottom:28px; overflow:hidden; }
+    .rewards-hero-banner::before { content:''; position:absolute; inset:0; background:radial-gradient(circle 180px at 10% 50%,rgba(0,201,141,0.1),transparent), radial-gradient(circle 180px at 90% 30%,rgba(245,200,66,0.12),transparent); pointer-events:none; }
+    .rewards-hero-banner::after { content:''; position:absolute; top:0; left:15%; right:15%; height:3px; background:linear-gradient(90deg,transparent,#00c98d,#f5c842,transparent); }
+    .trophy-float { font-size:64px; display:block; margin-bottom:12px; animation:floatUp 3s ease-in-out infinite; filter:drop-shadow(0 6px 16px rgba(245,200,66,0.35)); }
+    @keyframes floatUp { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .rewards-hero-banner h1 { font-family:'Nunito',sans-serif; font-weight:900; font-size:clamp(26px,3.5vw,38px); color:#1a1f36; margin-bottom:8px; }
+    .rewards-hero-banner p  { font-size:15px; color:#64748b; }
+
+    .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+    .stat-card { background:#fff; border:1.5px solid #e2e8f0; border-radius:16px; padding:20px 16px; text-align:center; transition:all 0.25s; position:relative; overflow:hidden; }
+    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--sc,#00c98d); }
+    .stat-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,0.08); }
+    .stat-val { font-family:'Nunito',sans-serif; font-size:30px; font-weight:900; color:var(--sc,#00c98d); }
+    .stat-lbl { font-size:12px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
+
+    .progress-card { background:#fff; border:1.5px solid #e2e8f0; border-radius:20px; padding:28px 32px; margin-bottom:28px; box-shadow:0 4px 20px rgba(0,0,0,0.04); }
+    .progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .progress-header h3 { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:#1a1f36; }
+    .pts-pill { background:linear-gradient(135deg,#fef9ee,#fffbe6); border:1.5px solid #f5c842; color:#b45309; font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; padding:6px 16px; border-radius:50px; }
+    .progress-track { height:14px; background:#f1f5f9; border-radius:50px; overflow:visible; position:relative; margin-bottom:10px; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,#00c98d,#6c63ff,#f5c842); border-radius:50px; position:relative; transition:width 1.2s cubic-bezier(0.4,0,0.2,1); box-shadow:0 2px 12px rgba(0,201,141,0.35); }
+    .progress-fill::after { content:''; position:absolute; right:-2px; top:50%; transform:translateY(-50%); width:22px; height:22px; background:#fff; border-radius:50%; border:3px solid #00c98d; box-shadow:0 0 10px rgba(0,201,141,0.4); }
+    .progress-labels { display:flex; justify-content:space-between; font-size:12px; color:#94a3b8; font-weight:600; margin-bottom:16px; }
+    .tier-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .tier-chip { padding:5px 14px; border-radius:50px; font-size:12px; font-weight:700; font-family:'Nunito',sans-serif; border:1.5px solid; transition:all 0.2s; }
+    .tier-chip.active   { background:#e0fff5; border-color:#00c98d; color:#00a374; }
+    .tier-chip.inactive { background:#f8fafc; border-color:#e2e8f0; color:#94a3b8; }
+
+    .rewards-section-title { font-family:'Nunito',sans-serif; font-size:22px; font-weight:900; color:#1a1f36; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+    .rewards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; }
+
+    .reward-card { background:#fff; border:2px solid #e2e8f0; border-radius:20px; padding:28px 22px; text-align:center; position:relative; overflow:hidden; transition:all 0.3s cubic-bezier(0.4,0,0.2,1); }
+    .reward-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--rg,linear-gradient(90deg,#00c98d,#6c63ff)); opacity:0; transition:opacity 0.3s; }
+    .reward-card.unlocked { border-color:rgba(0,201,141,0.3); }
+    .reward-card.unlocked::before { opacity:1; }
+    .reward-card.unlocked:hover { transform:translateY(-8px); box-shadow:0 20px 48px rgba(0,0,0,0.1); border-color:#00c98d; }
+    .reward-card.locked { opacity:0.65; }
+
+    .reward-emoji-circle { width:76px; height:76px; border-radius:50%; background:var(--eb,#e0fff5); border:2px solid var(--ebc,rgba(0,201,141,0.2)); display:flex; align-items:center; justify-content:center; font-size:36px; margin:0 auto 16px; transition:transform 0.3s; }
+    .reward-card.unlocked:hover .reward-emoji-circle { transform:scale(1.1) rotate(-5deg); }
+    .reward-name { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:#1a1f36; margin-bottom:6px; }
+    .reward-desc { font-size:13px; color:#94a3b8; margin-bottom:14px; line-height:1.5; }
+    .reward-pts-big { font-family:'Nunito',sans-serif; font-size:30px; font-weight:900; margin-bottom:6px; }
+    .reward-card.unlocked .reward-pts-big { color:#00a374; }
+    .reward-card.locked   .reward-pts-big { color:#94a3b8; }
+    .reward-status-badge { display:inline-block; font-size:12px; font-weight:700; padding:4px 12px; border-radius:50px; margin-bottom:16px; }
+    .reward-card.unlocked .reward-status-badge { background:#e0fff5; color:#00a374; border:1px solid #00c98d; }
+    .reward-card.locked   .reward-status-badge { background:#f8fafc; color:#94a3b8; border:1px solid #e2e8f0; }
+
+    .redeem-btn { width:100%; padding:12px; border:none; border-radius:12px; font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; cursor:pointer; transition:all 0.25s; }
+    .redeem-btn.can    { background:linear-gradient(135deg,#00c98d,#00a374); color:#fff; box-shadow:0 6px 18px rgba(0,201,141,0.3); }
+    .redeem-btn.can:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(0,201,141,0.4); }
+    .redeem-btn.cannot { background:#f1f5f9; color:#94a3b8; cursor:not-allowed; }
+
+    .particle { position:fixed; width:8px; height:8px; border-radius:2px; pointer-events:none; z-index:9999; animation:pfly 1.3s ease-out forwards; }
+    @keyframes pfly { 0%{opacity:1;transform:translate(0,0) rotate(0deg) scale(1)} 100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(540deg) scale(0.2)} }
+
+    .toast { position:fixed; bottom:28px; right:28px; z-index:9999; background:#fff; border:1.5px solid #00c98d; color:#1a1f36; padding:14px 22px; border-radius:14px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; box-shadow:0 8px 32px rgba(0,0,0,0.12); animation:tin 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes tin  { from{opacity:0;transform:translateY(16px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes tout { to{opacity:0;transform:translateY(8px) scale(0.97)} }
+    .toast.out { animation:tout 0.3s ease both; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="Home.html" class="nav-brand">💚 HealthMonitor</a>
+  <ul>
+    <li><a href="Home.html">Home</a></li>
+    <li><a href="Feature.html">Features</a></li>
+    <li><a href="Yoga.html">Yoga</a></li>
+    <li><a href="Quiz.html">Health Quiz</a></li>
+    <li><a href="Contact.html">Contact</a></li>
+    <li><a href="Reward.html" class="active">Rewards</a></li>
+    <li><a href="About.html">About</a></li>
+  </ul>
+  <div id="Login1"><div id="Login"><a href="Login.html">Login</a></div></div>
+</nav>
+
+<div class="section-wrap">
+  <div class="rewards-hero-banner">
+    <span class="trophy-float">🏆</span>
+    <h1>Your Rewards Vault</h1>
+    <p>Earn points by staying healthy. Redeem for amazing health benefits.</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card" style="--sc:#00c98d"><div class="stat-val" id="statPoints">450</div><div class="stat-lbl">Total Points</div></div>
+    <div class="stat-card" style="--sc:#6c63ff"><div class="stat-val" id="statRedeemed">0</div><div class="stat-lbl">Redeemed</div></div>
+    <div class="stat-card" style="--sc:#f59e0b"><div class="stat-val" id="statAvail">1</div><div class="stat-lbl">Available</div></div>
+  </div>
+
+  <div class="progress-card">
+    <div class="progress-header">
+      <h3>🎯 Progress to Elite</h3>
+      <span class="pts-pill" id="ptsPill">450 / 1000 pts</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    <div class="progress-labels"><span>0</span><span>250</span><span>500</span><span>750</span><span>🌟 1000</span></div>
+    <div class="tier-row">
+      <span class="tier-chip active">🥉 Bronze</span>
+      <span class="tier-chip inactive" id="silverChip">🥈 Silver (300+)</span>
+      <span class="tier-chip inactive" id="goldChip">🥇 Gold (600+)</span>
+      <span class="tier-chip inactive" id="eliteChip">👑 Elite (1000+)</span>
+    </div>
+  </div>
+
+  <div class="rewards-section-title">🎁 Redeem Rewards</div>
+  <div class="rewards-grid" id="rewardsGrid"></div>
+</div>
+
+<footer>
+  <p>© 2025 Health Monitor. All rights reserved.</p>
+  <p style="margin-top:4px">Contact: support@healthmonitor.com</p>
+</footer>
+
+<script>
+  var pts = 450, redeemed = 0;
+
+  var rewards = [
+    { emoji:"🩺", name:"Free Health Checkup", desc:"Full body checkup at partner clinics",  pts:500, rg:"linear-gradient(90deg,#00c98d,#3b82f6)", eb:"#e0fff5", ebc:"rgba(0,201,141,0.25)" },
+    { emoji:"💊", name:"Medicine Discount",   desc:"20% off at partner pharmacies",          pts:300, rg:"linear-gradient(90deg,#a855f7,#ec4899)", eb:"#f5f3ff", ebc:"rgba(168,85,247,0.25)" },
+    { emoji:"🏋️", name:"Gym Membership",      desc:"1-month premium gym membership",         pts:700, rg:"linear-gradient(90deg,#f59e0b,#ef4444)", eb:"#fffbeb", ebc:"rgba(245,158,11,0.25)" }
+  ];
+
+  function render() {
+    var avail = 0;
+    var grid = document.getElementById("rewardsGrid");
+    grid.innerHTML = "";
+    rewards.forEach(function(r) {
+      var can = pts >= r.pts;
+      if (can) avail++;
+      var card = document.createElement("div");
+      card.className = "reward-card " + (can ? "unlocked" : "locked");
+      card.style.setProperty("--rg", r.rg);
+      card.style.setProperty("--eb", r.eb);
+      card.style.setProperty("--ebc", r.ebc);
+      card.innerHTML =
+        '<div class="reward-emoji-circle">' + r.emoji + '</div>' +
+        '<div class="reward-name">' + r.name + '</div>' +
+        '<div class="reward-desc">' + r.desc + '</div>' +
+        '<div class="reward-pts-big">' + r.pts + ' <span style="font-size:15px;font-weight:600">pts</span></div>' +
+        '<div class="reward-status-badge">' + (can ? "✅ Ready to redeem!" : "🔒 Need " + (r.pts - pts) + " more") + '</div>' +
+        '<button class="redeem-btn ' + (can ? "can" : "cannot") + '" ' +
+          (can ? 'onclick="doRedeem(' + r.pts + ',\'' + r.name.replace(/'/g,"\\'") + '\',event)"' : "disabled") + '>' +
+          (can ? "🎁 Redeem Now" : "🔒 Locked") +
+        '</button>';
+      grid.appendChild(card);
+    });
+
+    document.getElementById("statPoints").textContent   = pts;
+    document.getElementById("statRedeemed").textContent = redeemed;
+    document.getElementById("statAvail").textContent    = avail;
+    document.getElementById("ptsPill").textContent      = pts + " / 1000 pts";
+    setTimeout(function() {
+      document.getElementById("progFill").style.width = Math.min(100, (pts / 1000) * 100) + "%";
+    }, 200);
+    document.getElementById("silverChip").className = "tier-chip " + (pts >= 300  ? "active" : "inactive");
+    document.getElementById("goldChip").className   = "tier-chip " + (pts >= 600  ? "active" : "inactive");
+    document.getElementById("eliteChip").className  = "tier-chip " + (pts >= 1000 ? "active" : "inactive");
+  }
+
+  function doRedeem(cost, name, e) {
+    if (pts < cost) return;
+    pts -= cost; redeemed++;
+    burst(e.clientX, e.clientY);
+    render();
+    showToast("🎉 " + name + " redeemed successfully!");
+  }
+
+  function burst(x, y) {
+    var colors = ["#00c98d","#6c63ff","#f5c842","#f59e0b","#ec4899","#3b82f6"];
+    for (var i = 0; i < 30; i++) {
+      (function(i) {
+        var p = document.createElement("div");
+        p.className = "particle";
+        var angle = (i / 30) * Math.PI * 2;
+        var d = 70 + Math.random() * 110;
+        p.style.cssText = "left:" + x + "px;top:" + y + "px;background:" + colors[i % colors.length] +
+          ";--dx:" + (Math.cos(angle) * d) + "px;--dy:" + (Math.sin(angle) * d - 30) + "px;" +
+          "animation-delay:" + (Math.random() * 0.08) + "s";
+        document.body.appendChild(p);
+        setTimeout(function() { p.remove(); }, 1500);
+      })(i);
+    }
+  }
+
+  function showToast(msg) {
+    var t = document.createElement("div");
+    t.className = "toast";
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() {
+      t.classList.add("out");
+      setTimeout(function() { t.remove(); }, 300);
+    }, 3500);
+  }
+
+  render();
+</script>
+<script src="auth.js"></script>
+</body>
+</html>

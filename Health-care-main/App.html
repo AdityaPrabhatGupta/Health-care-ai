@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disease Prediction – Health Monitor</title>
+  <link rel="stylesheet" href="App.css">
+</head>
+<body>
+
+<nav>
+  <a href="Home.html" class="nav-brand">💚 HealthMonitor</a>
+  <ul>
+    <li><a href="Home.html">Home</a></li>
+    <li><a href="Feature.html">Features</a></li>
+    <li><a href="Monitor.html">BMI</a></li>
+    <li><a href="Contact.html">Contact</a></li>
+    <li><a href="Reward.html">Rewards</a></li>
+    <li><a href="About.html">About</a></li>
+  </ul>
+  <div id="Login1"><div id="Login"><a href="Login.html">Login</a></div></div>
+</nav>
+
+<div class="section-wrap">
+  <h2 class="section-title">🧠 AI Disease Prediction</h2>
+  <p class="section-sub">Enter your symptoms separated by commas to get an AI-powered prediction</p>
+
+  <section id="prediction">
+    <input type="text" id="symptomsInput" placeholder="e.g. Fever, Cough, Headache, Fatigue" style="margin-bottom:16px">
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px">💡 Separate multiple symptoms with commas</p>
+    <button id="predictBtn">🔍 Predict Disease</button>
+    <div id="result" style="display:none; margin-top:20px"></div>
+    <div id="loading" style="display:none; margin-top:20px; color:var(--text-muted); font-family:var(--font-head); font-weight:700">
+      🔄 Analyzing symptoms...
+    </div>
+  </section>
+</div>
+
+<footer>
+  <p>© 2025 Health Monitor. All rights reserved.</p>
+</footer>
+
+<script>
+  async function predictDisease() {
+    const raw = document.getElementById("symptomsInput").value;
+    if (!raw.trim()) { showToast("⚠️ Please enter at least one symptom"); return; }
+
+    const symptoms = raw.split(",").map(s => s.trim()).filter(s => s.length > 0);
+
+    document.getElementById("result").style.display  = "none";
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("predictBtn").disabled   = true;
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symptoms })
+      });
+      const data = await response.json();
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("predictBtn").disabled   = false;
+
+      const resultEl = document.getElementById("result");
+      if (data.error) {
+        resultEl.style.background = "#fee2e2";
+        resultEl.style.border     = "2px solid #ef4444";
+        resultEl.style.color      = "#dc2626";
+        resultEl.innerHTML = "❌ " + data.error;
+      } else {
+        resultEl.style.background = "var(--primary-light)";
+        resultEl.style.border     = "2px solid var(--primary)";
+        resultEl.style.color      = "var(--primary-dark)";
+        resultEl.innerHTML = `🩺 Predicted Disease: <strong>${data.predicted_disease}</strong><br><small style="font-weight:400; color:var(--text-muted)">⚠️ This is AI-based. Please consult a doctor for diagnosis.</small>`;
+      }
+      resultEl.style.display = "block";
+      resultEl.style.borderRadius = "12px";
+      resultEl.style.padding = "16px 20px";
+      resultEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (error) {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("predictBtn").disabled   = false;
+      showToast("❌ Could not connect to server. Make sure Flask is running.");
+    }
+  }
+
+  document.getElementById("predictBtn").addEventListener("click", predictDisease);
+  document.getElementById("symptomsInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") predictDisease();
+  });
+
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 400); }, 3000);
+  }
+</script>
+
+<script src="auth.js"></script>
+</body>
+</html>
