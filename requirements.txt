@@ -1,7 +1,6 @@
 flask
 flask-cors
-tensorflow==2.15.0
-numpy
+tensorflow==2.16.1
 pandas
 scikit-learn
 python-dotenv
