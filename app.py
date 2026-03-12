@@ -3,7 +3,7 @@ import os
 load_dotenv()
 
 from flask import Flask, request, jsonify
-import tf_keras
+import keras
 import numpy as np
 import pandas as pd
 from flask_cors import CORS
@@ -17,17 +17,17 @@ mlb = MultiLabelBinarizer()
 X = mlb.fit_transform(data['symptoms'].apply(lambda x: x.split(',')))
 disease_labels = list(data['disease'].unique())
 
-model = tf_keras.Sequential([
-    tf_keras.layers.Dense(128, activation='relu', input_shape=(X.shape[1],)),
-    tf_keras.layers.Dense(64, activation='relu'),
-    tf_keras.layers.Dense(len(disease_labels), activation='softmax')
+model = keras.Sequential([
+    keras.layers.Dense(128, activation='relu', input_shape=(X.shape[1],)),
+    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(len(disease_labels), activation='softmax')
 ])
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 y = np.array([disease_labels.index(d) for d in data['disease']])
 model.fit(X, y, epochs=50, batch_size=8, validation_split=0.2)
 model.save("disease_prediction_model.keras")
-loaded_model = tf_keras.models.load_model("disease_prediction_model.keras")
+loaded_model = keras.models.load_model("disease_prediction_model.keras")
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 

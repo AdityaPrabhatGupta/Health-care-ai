@@ -1,8 +1,8 @@
 flask
 flask-cors
-tf-keras
+keras
+numpy
 pandas
 scikit-learn
 python-dotenv
 requests
-numpy
