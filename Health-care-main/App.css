@@ -932,3 +932,48 @@ footer a:hover { text-decoration: underline; }
   #chat-container { height: calc(100vh - 140px); }
   .msg-bubble { max-width: 85%; }
 }
+/* ── HAMBURGER MENU ── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 8px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  transform: none !important;
+}
+.hamburger:hover { background: none; box-shadow: none; transform: none !important; }
+.hamburger span { display: block; width: 24px; height: 2.5px; background: var(--primary); border-radius: 4px; transition: all 0.3s; }
+.hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+@media (max-width: 768px) {
+  nav { padding: 0 16px; flex-wrap: wrap; height: auto; min-height: var(--nav-h); }
+  .hamburger { display: flex; }
+  nav ul { display: none; flex-direction: column; width: 100%; padding: 12px 0 16px; gap: 4px; border-top: 1px solid var(--border); margin-top: 8px; }
+  nav ul.open { display: flex; }
+  nav ul li a { display: block; padding: 10px 16px; font-size: 15px; border-radius: 10px; }
+  #Login1 { display: block; width: 100%; padding: 0 0 12px; }
+  #Login { display: block; text-align: center; }
+  .hero { padding: 48px 20px; }
+  .section-wrap { padding: 32px 16px; }
+  #prediction { padding: 28px 20px; }
+  #contact-section { padding: 28px 20px; margin: 20px 16px; }
+  #about { padding: 32px 20px; margin: 20px 16px; }
+  .rewards-hero { padding: 28px 20px; }
+  .login-card { padding: 36px 24px; }
+  footer { padding: 20px 16px; margin-top: 40px; }
+}
+
+@media (max-width: 480px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .food-grid { grid-template-columns: repeat(2, 1fr); }
+  #chat-container { height: calc(100vh - 140px); border-radius: 0; }
+  .msg-bubble { max-width: 85%; }
+  .rewards-grid { grid-template-columns: 1fr; }
+  .hero h2 { font-size: 26px; }
+  .hero img { height: 200px; }
+}
