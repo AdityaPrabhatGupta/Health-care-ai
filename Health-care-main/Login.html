@@ -298,7 +298,7 @@
     btn.textContent = "Logging in…";
 
     // Try Flask server first; if unavailable, accept any credentials
-    fetch("http://127.0.0.1:5000/login", {
+    fetch("https://adity27-health-care-ai.hf.space/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: username, password: password })

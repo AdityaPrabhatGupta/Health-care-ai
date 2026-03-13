@@ -1,8 +1,9 @@
 flask
 flask-cors
-keras
-numpy
+tensorflow==2.15.0
 pandas
 scikit-learn
 python-dotenv
 requests
+numpy
+EOF
