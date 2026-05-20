@@ -350,9 +350,9 @@ http://localhost:7860
 
 # 👨‍💻 Author
 
-**Aditya Prabhat Gupta
-Ayush Singh
-Bipin Singh
+**Aditya Prabhat Gupta ,
+Ayush Singh ,
+Bipin Singh ,
 Aditya Singh**
 B.Tech CSE (AI & ML) — RIT Roorkee
 
